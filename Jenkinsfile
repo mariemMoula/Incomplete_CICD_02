@@ -6,35 +6,42 @@ pipeline {
     environment {
         SONAR_SCANNER_HOME = tool 'SonarQubeScanner' //the same as the scanner name in Jenkins configuration tools
         SONAR_PROJECT_KEY = 'incomplete-cicd-01' //the same as the project key in SonarQube
+        DOCKER_HUB_REPO = 'mimi019/incomplete-cicd-01' // the same as the repository name in DockerHub
     }
-    stages{
-        stage('GitHub'){
-            steps{
+    stages {
+        stage('GitHub') {
+            steps {
                 git credentialsId: 'jen-git-dind', url: 'https://github.com/mariemMoula/Incomplete_CICD_02.git'
-                }
-                }
-        stage('Unit Test'){
-            steps{
+            }
+        }
+        stage('Unit Test') {
+            steps {
                 sh 'npm install'
                 sh 'npm test'
             }
         }
         stage('SonarQube Analysis') {
-        steps {
-            withCredentials([string(credentialsId: 'incomplete-cicd-02-SonarQubetoken', variable: 'SONAR_TOKEN')]) {
-                withSonarQubeEnv('SonarQube') {
-                    sh """
+            steps {
+                withCredentials([string(credentialsId: 'incomplete-cicd-02-SonarQubetoken', variable: 'SONAR_TOKEN')]) {
+                    withSonarQubeEnv('SonarQube') {
+                        sh """
                     ${SONAR_SCANNER_HOME}/bin/sonar-scanner \
                     -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
                     -Dsonar.sources=. \
                     -Dsonar.host.url=http://sonarqube:9000 \
                     -Dsonar.login=${SONAR_TOKEN}
                     """
+                    }
+                }
+            }
+        }
+        stage('Docker Image') {
+            steps {
+                script {
+                    docker.build("${DOCKER_HUB_REPO}:latest")
+                }
             }
         }
     }
-}
-
-}
 }
 
