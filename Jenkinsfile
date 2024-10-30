@@ -64,7 +64,6 @@ pipeline {
                 script {
                     sh """
                 docker.image("${ECR_REGISTRY}/${ECR_REPO}:${IMAGE_TAG}").push()
-                docker tag devopsorojectrepo:latest 417738508223.dkr.ecr.us-east-1.amazonaws.com/devopsorojectrepo:latest
                 """
                 }
             }
