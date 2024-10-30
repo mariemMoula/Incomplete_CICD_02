@@ -27,7 +27,7 @@ pipeline {
                     ${SONAR_SCANNER_HOME}/bin/sonar-scanner \
                     -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
                     -Dsonar.sources=. \
-                    -Dsonar.host.url=sonarqube:9000 \
+                    -Dsonar.host.url=http://sonarqube:9000 \
                     -Dsonar.login=${SONAR_TOKEN}
                     """
             }
