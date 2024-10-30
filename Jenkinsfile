@@ -7,6 +7,7 @@ pipeline {
         SONAR_SCANNER_HOME = tool 'SonarQubeScanner' //the same as the scanner name in Jenkins configuration tools
         SONAR_PROJECT_KEY = 'incomplete-cicd-01' //the same as the project key in SonarQube
         JOB_NAME_NOW = 'cicd02' //the same as the project name in Jenkins
+    }
     stages {
         stage('GitHub') {
             steps {
@@ -41,14 +42,12 @@ pipeline {
                 }
             }
         }
-        stage('Trivy Scan'){
+        stage('Trivy Scan') {
             steps {
                 script {
-                    sh 'trivy --severity HIGH ,CRITICAL --no-progress --format table -o trivy-report.html image ${JOB_NAME_NOW}:latest'
-                }
-            }
-            
+                    sh "trivy --severity HIGH,CRITICAL --no-progress --format table -o trivy-report.html image ${JOB_NAME_NOW}:latest"       
+                 }
         }
     }
 }
-
+}
