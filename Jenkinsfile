@@ -54,22 +54,28 @@ pipeline {
         }
         stage('Login to AWS ECR') {
         steps {
-            withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws_credentials']]) {
-                sh '''
-                                aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
-                                aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
-                                aws configure set aws_session_token $AWS_SESSION_TOKEN
-                                aws sts get-caller-identity
-                                '''
-                sh '''
-                echo "Logging into AWS ECR registry ${ECR_REGISTRY}"
-                aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${ECR_REGISTRY} || exit 1
-                '''
+                withCredentials([file(credentialsId: 'aws-credentials', variable: 'AWS_CREDENTIALS_FILE')]) {
+                script {
+                    sh"tree"
+                    def awsCredentials = readFile(AWS_CREDENTIALS_FILE).trim().split("\n")
+                    env.AWS_ACCESS_KEY_ID = awsCredentials.find { it.startsWith("aws_access_key_id") }.split("=")[1].trim()
+                    env.AWS_SECRET_ACCESS_KEY = awsCredentials.find { it.startsWith("aws_secret_access_key") }.split("=")[1].trim()
+                    env.AWS_SESSION_TOKEN = awsCredentials.find { it.startsWith("aws_session_token") }?.split("=")[1]?.trim()
+
+                    echo "AWS Access Key ID: ${env.AWS_ACCESS_KEY_ID}"
+
+                    sh '''
+                    aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
+                    aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
+                    aws configure set aws_session_token $AWS_SESSION_TOKEN
+                    aws sts get-caller-identity
+                    echo "Logging into AWS ECR registry ${ECR_REGISTRY}"
+                    aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${ECR_REGISTRY} || exit 1
+                    '''
+                    }
+                }
             }
         }
-    }
-
-
         stage('PUSH IMAGE TO ECR') {
             steps {
                 script {
@@ -85,7 +91,7 @@ pipeline {
             sh 'echo "Docker images:"'
             sh 'docker images'
         }
-}
+        }
 
+        }
     }
-}
