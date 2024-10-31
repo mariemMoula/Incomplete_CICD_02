@@ -56,7 +56,6 @@ pipeline {
         steps {
                 withCredentials([file(credentialsId: 'aws-credentials', variable: 'AWS_CREDENTIALS_FILE')]) {
                 script {
-                    sh"tree"
                     def awsCredentials = readFile(AWS_CREDENTIALS_FILE).trim().split("\n")
                     env.AWS_ACCESS_KEY_ID = awsCredentials.find { it.startsWith("aws_access_key_id") }.split("=")[1].trim()
                     env.AWS_SECRET_ACCESS_KEY = awsCredentials.find { it.startsWith("aws_secret_access_key") }.split("=")[1].trim()
