@@ -76,14 +76,12 @@ pipeline {
             }
         }
         stage('PUSH IMAGE TO ECR') {
-            steps {
-                script {
-                    sh '''
+        steps {
+            script {
                 docker.image("${ECR_REGISTRY}/${ECR_REPO}:${IMAGE_TAG}").push()
-                '''
-                }
             }
         }
+}
         stage('Debugging') {
         steps {
             sh 'aws sts get-caller-identity'
