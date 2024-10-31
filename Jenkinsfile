@@ -54,11 +54,14 @@ pipeline {
         }
         stage('Login to AWS ECR') {
             steps {
-                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: "${AWS_CREDENTIALS_ID}"]]) {
+                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws_credentails']]) {
                     sh 'aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${ECR_REGISTRY}'
+                    sh 'echo "Logging into ECR Registry: ${ECR_REGISTRY}"'
+
                 }
             }
         }
+
         stage('PUSH IMAGE TO ECR') {
             steps {
                 script {
@@ -68,5 +71,13 @@ pipeline {
                 }
             }
         }
+        stage('Debugging') {
+        steps {
+            sh 'aws sts get-caller-identity'
+            sh 'echo "Docker images:"'
+            sh 'docker images'
+        }
+}
+
     }
 }
