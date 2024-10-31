@@ -56,6 +56,12 @@ pipeline {
         steps {
             withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws_credentials']]) {
                 sh '''
+                                aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
+                                aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
+                                aws configure set aws_session_token $AWS_SESSION_TOKEN
+                                aws sts get-caller-identity
+                                '''
+                sh '''
                 echo "Logging into AWS ECR registry ${ECR_REGISTRY}"
                 aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${ECR_REGISTRY} || exit 1
                 '''
